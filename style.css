@@ -1,111 +1,87 @@
 body{
-
 font-family:Arial;
 padding:15px;
 background:#f2f2f2;
-
 }
 
-
 .top{
-
 display:flex;
 justify-content:space-between;
+align-items:center;
+}
 
+.top button{
+width:auto;
+padding:8px 12px;
+font-size:18px;
 }
 
 
 .page{
-
 background:white;
 padding:20px;
 border-radius:10px;
-
 }
 
 
 .hidden{
-
 display:none;
-
 }
 
 
 button,input{
-
-width:100%;
 padding:12px;
 margin:6px 0;
-
 }
 
 
 button{
-
+width:100%;
 background:#1976d2;
 color:white;
 border:0;
 border-radius:8px;
-
 }
 
 
 .employee{
-
 padding:15px;
 margin:8px;
 background:#ddd;
 border-radius:8px;
-
 }
 
 
-
 table{
-
 width:100%;
 border-collapse:collapse;
-
 }
 
 
 td,th{
-
 border:1px solid #aaa;
 padding:6px;
-
 }
 
 
 
-/* DARK MODE */
-
-
 .dark{
-
 background:#121212;
 color:white;
-
 }
 
 
 .dark .page{
-
 background:#222;
-
 }
 
 
 .dark .employee{
-
 background:#333;
-
 }
 
 
 .dark input{
-
 background:#333;
 color:white;
-
 }
