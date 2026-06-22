@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Break Record</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="top">
+<h2>Break Record</h2>
+<button onclick="darkMode()">🌙</button>
+</div>
+
+
+<!-- PAGE 1 -->
+
+<div id="employeesPage" class="page">
+
+<h3>Employees</h3>
+
+<input id="newEmployee" placeholder="Employee name">
+
+<button onclick="addEmployee()">Add Employee</button>
+
+<div id="employeeList"></div>
+
+<button onclick="showHistory()">
+History
+</button>
+
+</div>
+
+
+
+<!-- PAGE 2 -->
+
+<div id="breakPage" class="page hidden">
+
+<h2 id="empTitle"></h2>
+
+<h1 id="timer">
+00:00:00
+</h1>
+
+<button onclick="startBreak()">
+Start Break
+</button>
+
+<button onclick="stopBreak()">
+Stop Break
+</button>
+
+
+<button onclick="backHome()">
+Back
+</button>
+
+</div>
+
+
+
+<!-- HISTORY -->
+
+<div id="historyPage" class="page hidden">
+
+<h3>History</h3>
+
+<button onclick="exportCSV()">
+Export CSV
+</button>
+
+<button onclick="window.print()">
+Export PDF
+</button>
+
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Date</th>
+<th>Start</th>
+<th>End</th>
+<th>Min</th>
+</tr>
+</thead>
+
+<tbody id="history"></tbody>
+
+</table>
+
+
+<button onclick="backHome()">
+Back
+</button>
+
+</div>
+
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
