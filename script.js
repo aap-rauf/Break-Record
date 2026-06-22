@@ -1,7 +1,6 @@
 let employees =
 JSON.parse(localStorage.getItem("employees")) || [];
 
-
 let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
@@ -11,13 +10,45 @@ let currentEmployee="";
 let startTime =
 localStorage.getItem("startTime");
 
+
+let activeEmployee =
+localStorage.getItem("activeEmployee");
+
+
 let timer;
 
 let alertTimer;
 
 
 
-function save(){
+// LOAD
+
+loadEmployees();
+
+
+// DARK MODE
+
+if(localStorage.getItem("dark")=="true"){
+document.body.classList.add("dark");
+}
+
+
+
+// ADD EMPLOYEE
+
+function addEmployee(){
+
+let name =
+document.getElementById("newEmployee").value.trim();
+
+
+if(!name)return;
+
+
+if(!employees.includes(name)){
+
+employees.push(name);
+
 
 localStorage.setItem(
 "employees",
@@ -27,49 +58,72 @@ JSON.stringify(employees)
 }
 
 
+document.getElementById("newEmployee").value="";
 
-function addEmployee(){
-
-let n=
-document.getElementById("newEmployee").value;
-
-
-if(n){
-
-employees.push(n);
-
-save();
 
 loadEmployees();
 
 }
 
-}
 
 
+// EMPLOYEE LIST
 
 function loadEmployees(){
 
-let box=
+let box =
 document.getElementById("employeeList");
 
 
 box.innerHTML="";
 
 
-employees.forEach(e=>{
+employees.forEach(name=>{
 
 
-box.innerHTML+=`
+let status="🟢 Working";
+
+
+let time="";
+
+
+if(
+activeEmployee==name &&
+startTime
+){
+
+status="🔴 On Break";
+
+
+time =
+getLiveTime();
+
+}
+
+
+
+box.innerHTML += `
+
 
 <div class="employee"
-onclick="openBreak('${e}')">
 
-${e}
+onclick="openBreak('${name}')">
+
+
+<b>${name}</b>
+
+<br>
+
+${status}
+
+${time ? "<br>"+time : ""}
+
 
 </div>
 
+
 `;
+
 
 });
 
@@ -77,6 +131,8 @@ ${e}
 }
 
 
+
+// OPEN BREAK PAGE
 
 function openBreak(name){
 
@@ -91,9 +147,28 @@ employeesPage.classList.add("hidden");
 
 breakPage.classList.remove("hidden");
 
+
+
+if(
+activeEmployee==name &&
+startTime
+){
+
+timer =
+setInterval(updateTimer,1000);
+
+
+updateTimer();
+
+
+}
+
 }
 
 
+
+
+// START BREAK
 
 function startBreak(){
 
@@ -101,90 +176,185 @@ function startBreak(){
 if(startTime)return;
 
 
-startTime=new Date();
+startTime =
+new Date().getTime();
 
 
-timer=setInterval(updateTimer,1000);
+activeEmployee =
+currentEmployee;
 
 
-checkAlert();
+
+localStorage.setItem(
+"startTime",
+startTime
+);
+
+
+localStorage.setItem(
+"activeEmployee",
+activeEmployee
+);
+
+
+
+timer =
+setInterval(
+updateTimer,
+1000
+);
+
+
+
+updateTimer();
+
+
+startAlerts();
+
+
+loadEmployees();
 
 
 }
 
 
+
+
+// TIMER DISPLAY
 
 function updateTimer(){
-
-
-let diff=
-new Date()-startTime;
-
-
-let sec=
-Math.floor(diff/1000);
-
-
-let h=
-Math.floor(sec/3600);
-
-
-let m=
-Math.floor((sec%3600)/60);
-
-
-let s=
-sec%60;
-
-
-timer.innerHTML=
-
-`${h}:${m}:${s}`;
-
-
-}
-
-
-
-function checkAlert(){
-
-setInterval(()=>{
 
 
 if(!startTime)return;
 
 
-let min=
+timer.innerHTML =
+getLiveTime();
+
+
+loadEmployees();
+
+
+}
+
+
+
+function getLiveTime(){
+
+
+let diff =
+new Date().getTime()
+-
+Number(startTime);
+
+
+
+let sec =
+Math.floor(diff/1000);
+
+
+let h =
+Math.floor(sec/3600);
+
+
+let m =
 Math.floor(
-(new Date()-startTime)/60000
+(sec%3600)/60
+);
+
+
+let s =
+sec%60;
+
+
+return
+
+String(h).padStart(2,"0")
++
+":"
++
+String(m).padStart(2,"0")
++
+":"
++
+String(s).padStart(2,"0");
+
+
+}
+
+
+
+
+// NOTIFICATIONS
+
+function startAlerts(){
+
+
+clearInterval(alertTimer);
+
+
+alertTimer =
+setInterval(()=>{
+
+
+let minutes =
+Math.floor(
+
+(
+new Date().getTime()
+-
+Number(startTime)
+)
+/60000
+
 );
 
 
 
-if(min>=30 && min%10==0){
+if(
+minutes>=30 &&
+minutes%10==0
+){
+
+
+if(Notification.permission==="granted"){
 
 
 new Notification(
+
 "Break Alert",
+
 {
 
 body:
-currentEmployee+
-" break "+min+
+
+activeEmployee+
+" break "
++
+minutes+
 " minutes"
 
-});
+}
+
+);
 
 
 }
+
+
+}
+
 
 
 },60000);
 
 
+
 }
 
 
+
+// STOP BREAK
 
 function stopBreak(){
 
@@ -192,53 +362,93 @@ function stopBreak(){
 if(!startTime)return;
 
 
-let end=new Date();
+let start =
+new Date(
+Number(startTime)
+);
 
 
-let minutes=
+let end =
+new Date();
+
+
+
+let minutes =
 Math.floor(
-(end-startTime)/60000
+(end-start)/60000
 );
 
 
 
 records.unshift({
 
-name:currentEmployee,
+name:activeEmployee,
 
 date:
-new Date().toLocaleDateString(),
+start.toLocaleDateString(),
 
 start:
-startTime.toLocaleTimeString(),
+start.toLocaleTimeString(),
 
 end:
 end.toLocaleTimeString(),
 
-min:minutes
+min:
+minutes
+
 
 });
 
 
 
 localStorage.setItem(
+
 "records",
+
 JSON.stringify(records)
+
 );
 
 
 
-clearInterval(timer);
+// CLEAR
+
+localStorage.removeItem(
+"startTime"
+);
+
+
+localStorage.removeItem(
+"activeEmployee"
+);
+
 
 startTime=null;
 
+activeEmployee=null;
 
-alert("Break saved");
+
+clearInterval(timer);
+
+clearInterval(alertTimer);
+
+
+
+document.getElementById("timer")
+.innerHTML="00:00:00";
+
+
+alert("Break Saved");
+
+
+loadEmployees();
 
 
 }
 
 
+
+// HISTORY
 
 function showHistory(){
 
@@ -248,17 +458,20 @@ employeesPage.classList.add("hidden");
 historyPage.classList.remove("hidden");
 
 
-let h=
+
+let h =
 document.getElementById("history");
 
 
 h.innerHTML="";
 
 
+
 records.forEach(r=>{
 
 
-h.innerHTML+=`
+h.innerHTML += `
+
 
 <tr>
 
@@ -272,9 +485,12 @@ h.innerHTML+=`
 
 <td>${r.min}</td>
 
+
 </tr>
 
+
 `;
+
 
 });
 
@@ -283,17 +499,20 @@ h.innerHTML+=`
 
 
 
+
+// CSV EXPORT
+
 function exportCSV(){
 
 
-let csv=
+let csv =
 "Name,Date,Start,End,Minutes\n";
 
 
 records.forEach(r=>{
 
 
-csv+=
+csv +=
 
 `${r.name},${r.date},${r.start},${r.end},${r.min}\n`;
 
@@ -301,19 +520,22 @@ csv+=
 });
 
 
-let blob=
+
+let blob =
 new Blob([csv]);
 
 
-let a=
+
+let a =
 document.createElement("a");
 
 
-a.href=
+a.href =
 URL.createObjectURL(blob);
 
 
-a.download="break-record.csv";
+a.download =
+"break-record.csv";
 
 
 a.click();
@@ -323,28 +545,43 @@ a.click();
 
 
 
+// BACK
+
 function backHome(){
 
 
 document.querySelectorAll(".page")
-.forEach(p=>p.classList.add("hidden"));
+.forEach(p=>{
+
+p.classList.add("hidden");
+
+});
 
 
 employeesPage.classList.remove("hidden");
 
 
+loadEmployees();
+
 }
 
 
 
+
+// DARK MODE
+
 function darkMode(){
+
 
 document.body.classList.toggle("dark");
 
 
 localStorage.setItem(
+
 "dark",
+
 document.body.classList.contains("dark")
+
 );
 
 
@@ -352,25 +589,27 @@ document.body.classList.contains("dark")
 
 
 
-if(localStorage.getItem("dark")=="true")
 
-document.body.classList.add("dark");
-
-
-
-loadEmployees();
-
-
+// NOTIFICATION PERMISSION
 
 if(
 "Notification" in window
-)
+){
 
 Notification.requestPermission();
 
+}
 
 
 
-if("serviceWorker" in navigator)
+// OFFLINE
 
-navigator.serviceWorker.register("sw.js");
+if(
+"serviceWorker" in navigator
+){
+
+navigator.serviceWorker.register(
+"sw.js"
+);
+
+}
