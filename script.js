@@ -8,9 +8,12 @@ JSON.parse(localStorage.getItem("records")) || [];
 
 let currentEmployee="";
 
-let startTime=null;
+let startTime =
+localStorage.getItem("startTime");
 
 let timer;
+
+let alertTimer;
 
 
 
