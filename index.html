@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Break Tracker</title>
-
-<link rel="manifest" href="manifest.json">
 
 <link rel="stylesheet" href="style.css">
 
@@ -16,138 +15,135 @@
 <body>
 
 
-<div class="header">
-
-<h2>Break Tracker</h2>
-
-<button class="darkBtn" onclick="darkMode()">🌙</button>
-
-</div>
+<div class="app">
 
 
+<header>
 
-<!-- HOME -->
+<h2>⏱ Break Tracker</h2>
 
-<div id="home" class="card">
+<button class="theme" onclick="darkMode()">🌙</button>
+
+</header>
+
+
+
+<section id="home">
 
 
 <h3>Employees</h3>
 
 
-<input id="employeeInput"
+<input id="empInput"
 placeholder="Employee name">
 
 
-<button onclick="addEmployee()">
-Add Employee
+<button onclick="addEmployee()"
+class="btn">
++ Add Employee
 </button>
 
 
 
-<div id="list"></div>
+<div id="employees"></div>
 
 
 
-<button onclick="showHistory()">
-History
+<button onclick="historyPage()"
+class="btn">
+📋 History
 </button>
 
 
-</div>
+</section>
 
 
 
 
 
-<!-- BREAK PAGE -->
+<section id="breakPage" class="hide">
 
 
-<div id="break" class="card hide">
+<h2 id="empName"></h2>
 
 
-<h2 id="name"></h2>
+<div class="timer">
 
-
-<h1 id="clock">
 00:00:00
-</h1>
+
+</div>
 
 
-<p id="status">
+
+<h3 id="status">
+
 Ready
-</p>
+
+</h3>
 
 
+<button onclick="start()"
+class="start">
 
-<button onclick="startBreak()">
-Start Break
+▶ Start Break
+
 </button>
 
 
-<button onclick="stopBreak()">
-Stop Break
+
+<button onclick="stop()"
+class="stop">
+
+⏹ Stop Break
+
 </button>
 
 
-<button onclick="back()">
+<button onclick="back()"
+class="btn">
+
 Back
+
 </button>
 
 
-</div>
+</section>
 
 
 
 
 
-<!-- HISTORY -->
+
+<section id="history" class="hide">
 
 
-<div id="historyPage" class="card hide">
+<h2>History</h2>
 
 
-<h3>History</h3>
+<button onclick="csv()"
+class="btn">
 
-
-<button onclick="csv()">
 Export CSV
+
 </button>
 
 
-<button onclick="print()">
-Export PDF
-</button>
+<div id="records"></div>
 
 
+<button onclick="back()"
+class="btn">
 
-<table>
-
-
-<tr>
-
-<th>Name</th>
-<th>Date</th>
-<th>Start</th>
-<th>End</th>
-<th>Min</th>
-
-</tr>
-
-
-<tbody id="records"></tbody>
-
-
-</table>
-
-
-<button onclick="back()">
 Back
+
 </button>
+
+
+</section>
+
 
 
 </div>
-
-
 
 
 <script src="script.js"></script>
