@@ -1,110 +1,158 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Break Record</title>
+
+<title>Break Tracker</title>
 
 <link rel="manifest" href="manifest.json">
+
 <link rel="stylesheet" href="style.css">
 
 </head>
 
+
 <body>
 
-<div class="top">
-<h2>Break Record</h2>
-<button onclick="darkMode()">🌙</button>
+
+<div class="header">
+
+<h2>Break Tracker</h2>
+
+<button class="darkBtn" onclick="darkMode()">🌙</button>
+
 </div>
 
 
-<!-- PAGE 1 -->
 
-<div id="employeesPage" class="page">
+<!-- HOME -->
+
+<div id="home" class="card">
+
 
 <h3>Employees</h3>
 
-<input id="newEmployee" placeholder="Employee name">
 
-<button onclick="addEmployee()">Add Employee</button>
+<input id="employeeInput"
+placeholder="Employee name">
 
-<div id="employeeList"></div>
+
+<button onclick="addEmployee()">
+Add Employee
+</button>
+
+
+
+<div id="list"></div>
+
+
 
 <button onclick="showHistory()">
 History
 </button>
 
+
 </div>
 
 
 
-<!-- PAGE 2 -->
 
-<div id="breakPage" class="page hidden">
 
-<h2 id="empTitle"></h2>
+<!-- BREAK PAGE -->
 
-<h1 id="timer">
+
+<div id="break" class="card hide">
+
+
+<h2 id="name"></h2>
+
+
+<h1 id="clock">
 00:00:00
 </h1>
+
+
+<p id="status">
+Ready
+</p>
+
+
 
 <button onclick="startBreak()">
 Start Break
 </button>
+
 
 <button onclick="stopBreak()">
 Stop Break
 </button>
 
 
-<button onclick="backHome()">
+<button onclick="back()">
 Back
 </button>
 
+
 </div>
+
+
 
 
 
 <!-- HISTORY -->
 
-<div id="historyPage" class="page hidden">
+
+<div id="historyPage" class="card hide">
+
 
 <h3>History</h3>
 
-<button onclick="exportCSV()">
+
+<button onclick="csv()">
 Export CSV
 </button>
 
-<button onclick="window.print()">
+
+<button onclick="print()">
 Export PDF
 </button>
 
 
+
 <table>
 
-<thead>
+
 <tr>
+
 <th>Name</th>
 <th>Date</th>
 <th>Start</th>
 <th>End</th>
 <th>Min</th>
-</tr>
-</thead>
 
-<tbody id="history"></tbody>
+</tr>
+
+
+<tbody id="records"></tbody>
+
 
 </table>
 
 
-<button onclick="backHome()">
+<button onclick="back()">
 Back
 </button>
+
 
 </div>
 
 
 
+
 <script src="script.js"></script>
 
+
 </body>
+
 </html>
