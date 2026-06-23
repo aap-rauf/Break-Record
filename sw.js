@@ -1,4 +1,4 @@
-const CACHE="break-tracker-v1.1";
+const CACHE="break-tracker-v1.1.0";
 
 
 self.addEventListener("install",e=>{
