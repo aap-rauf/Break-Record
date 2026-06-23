@@ -1,126 +1,62 @@
 let employees =
-JSON.parse(localStorage.getItem("employees")) || [];
+JSON.parse(localStorage.emp || "[]");
+
 
 let records =
-JSON.parse(localStorage.getItem("records")) || [];
+JSON.parse(localStorage.records || "[]");
 
 
-let currentEmployee="";
+let selected="";
+
 
 let startTime =
-localStorage.getItem("startTime");
+localStorage.start || null;
 
 
-let activeEmployee =
-localStorage.getItem("activeEmployee");
+
+let active =
+localStorage.active || null;
+
 
 
 let timer;
 
-let alertTimer;
 
 
 
-// LOAD
 
-loadEmployees();
-
-
-// DARK MODE
-
-if(localStorage.getItem("dark")=="true"){
-document.body.classList.add("dark");
-}
+function load(){
 
 
-
-// ADD EMPLOYEE
-
-function addEmployee(){
-
-let name =
-document.getElementById("newEmployee").value.trim();
+employeesDiv.innerHTML="";
 
 
-if(!name)return;
-
-
-if(!employees.includes(name)){
-
-employees.push(name);
-
-
-localStorage.setItem(
-"employees",
-JSON.stringify(employees)
-);
-
-}
-
-
-document.getElementById("newEmployee").value="";
-
-
-loadEmployees();
-
-}
-
-
-
-// EMPLOYEE LIST
-
-function loadEmployees(){
-
-let box =
-document.getElementById("employeeList");
-
-
-box.innerHTML="";
-
-
-employees.forEach(name=>{
+employees.forEach(e=>{
 
 
 let status="🟢 Working";
 
 
-let time="";
-
-
-if(
-activeEmployee==name &&
-startTime
-){
+if(active==e)
 
 status="🔴 On Break";
 
 
-time =
-getLiveTime();
+employeesDiv.innerHTML +=
 
-}
-
-
-
-box.innerHTML += `
-
+`
 
 <div class="employee"
 
-onclick="openBreak('${name}')">
+onclick="openEmp('${e}')">
 
-
-<b>${name}</b>
+<b>${e}</b>
 
 <br>
 
 ${status}
 
-${time ? "<br>"+time : ""}
-
-
 </div>
-
 
 `;
 
@@ -132,366 +68,241 @@ ${time ? "<br>"+time : ""}
 
 
 
-// OPEN BREAK PAGE
-
-function openBreak(name){
-
-currentEmployee=name;
+function addEmployee(){
 
 
-document.getElementById("empTitle")
-.innerHTML=name;
+let n=empInput.value.trim();
 
 
-employeesPage.classList.add("hidden");
-
-breakPage.classList.remove("hidden");
+if(!n)return;
 
 
-
-if(
-activeEmployee==name &&
-startTime
-){
-
-timer =
-setInterval(updateTimer,1000);
+employees.push(n);
 
 
-updateTimer();
+localStorage.emp=
+JSON.stringify(employees);
+
+
+empInput.value="";
+
+
+load();
 
 
 }
 
+
+
+
+
+function openEmp(e){
+
+
+selected=e;
+
+
+empName.innerHTML=e;
+
+
+home.classList.add("hide");
+
+breakPage.classList.remove("hide");
+
+
 }
 
 
 
-
-// START BREAK
-
-function startBreak(){
+function start(){
 
 
 if(startTime)return;
 
 
-startTime =
-new Date().getTime();
+
+startTime=Date.now();
 
 
-activeEmployee =
-currentEmployee;
+active=selected;
 
 
-
-localStorage.setItem(
-"startTime",
-startTime
-);
+localStorage.start=startTime;
 
 
-localStorage.setItem(
-"activeEmployee",
-activeEmployee
-);
+localStorage.active=active;
 
 
 
-timer =
-setInterval(
-updateTimer,
-1000
-);
+timer=setInterval(update,1000);
 
 
-
-updateTimer();
-
-
-startAlerts();
-
-
-loadEmployees();
+notify();
 
 
 }
 
 
 
-
-// TIMER DISPLAY
-
-function updateTimer(){
+function update(){
 
 
-if(!startTime)return;
-
-
-timer.innerHTML =
-getLiveTime();
-
-
-loadEmployees();
-
-
-}
-
-
-
-function getLiveTime(){
-
-
-let diff =
-new Date().getTime()
--
-Number(startTime);
-
-
-
-let sec =
-Math.floor(diff/1000);
-
-
-let h =
-Math.floor(sec/3600);
-
-
-let m =
+let sec=
 Math.floor(
-(sec%3600)/60
-);
-
-
-let s =
-sec%60;
-
-
-return
-
-String(h).padStart(2,"0")
-+
-":"
-+
-String(m).padStart(2,"0")
-+
-":"
-+
-String(s).padStart(2,"0");
-
-
-}
-
-
-
-
-// NOTIFICATIONS
-
-function startAlerts(){
-
-
-clearInterval(alertTimer);
-
-
-alertTimer =
-setInterval(()=>{
-
-
-let minutes =
-Math.floor(
-
-(
-new Date().getTime()
--
-Number(startTime)
-)
-/60000
-
+(Date.now()-startTime)/1000
 );
 
 
 
-if(
-minutes>=30 &&
-minutes%10==0
-){
+let h=Math.floor(sec/3600);
 
 
-if(Notification.permission==="granted"){
+let m=Math.floor(sec%3600/60);
 
 
-new Notification(
-
-"Break Alert",
-
-{
-
-body:
-
-activeEmployee+
-" break "
-+
-minutes+
-" minutes"
-
-}
-
-);
+let s=sec%60;
 
 
-}
+
+document.querySelector(".timer")
+.innerHTML=
+
+`${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
 
 
 }
 
 
 
-},60000);
+function stop(){
 
 
-
-}
-
+let end=Date.now();
 
 
-// STOP BREAK
-
-function stopBreak(){
-
-
-if(!startTime)return;
-
-
-let start =
-new Date(
-Number(startTime)
-);
-
-
-let end =
-new Date();
-
-
-
-let minutes =
-Math.floor(
-(end-start)/60000
+let min=Math.floor(
+(end-startTime)/60000
 );
 
 
 
 records.unshift({
 
-name:activeEmployee,
+name:selected,
 
-date:
-start.toLocaleDateString(),
+date:new Date().toLocaleDateString(),
 
-start:
-start.toLocaleTimeString(),
-
-end:
-end.toLocaleTimeString(),
-
-min:
-minutes
-
+minutes:min
 
 });
 
 
 
-localStorage.setItem(
-
-"records",
-
-JSON.stringify(records)
-
-);
+localStorage.records=
+JSON.stringify(records);
 
 
 
-// CLEAR
+localStorage.removeItem("start");
 
-localStorage.removeItem(
-"startTime"
-);
+localStorage.removeItem("active");
 
-
-localStorage.removeItem(
-"activeEmployee"
-);
 
 
 startTime=null;
 
-activeEmployee=null;
+active=null;
 
 
 clearInterval(timer);
 
-clearInterval(alertTimer);
+
+alert("Saved");
+
+
+back();
+
+}
 
 
 
-document.getElementById("timer")
-.innerHTML="00:00:00";
+
+function notify(){
 
 
-alert("Break Saved");
+setInterval(()=>{
 
 
-loadEmployees();
+if(!startTime)return;
+
+
+let min=Math.floor(
+
+(Date.now()-startTime)
+/60000
+
+);
+
+
+
+if(min>=30 && min%10==0){
+
+
+new Notification(
+"Break Alert",
+{
+body:selected+
+" break "+min+
+" minutes"
+}
+);
+
+
+}
+
+
+},60000);
 
 
 }
 
 
 
-// HISTORY
 
-function showHistory(){
-
-
-employeesPage.classList.add("hidden");
-
-historyPage.classList.remove("hidden");
+function historyPage(){
 
 
+home.classList.add("hide");
 
-let h =
-document.getElementById("history");
+history.classList.remove("hide");
 
 
-h.innerHTML="";
-
+recordsDiv.innerHTML="";
 
 
 records.forEach(r=>{
 
 
-h.innerHTML += `
+recordsDiv.innerHTML+=
 
+`
 
-<tr>
+<div class="employee">
 
-<td>${r.name}</td>
+${r.name}
 
-<td>${r.date}</td>
+<br>
 
-<td>${r.start}</td>
+${r.date}
 
-<td>${r.end}</td>
+<br>
 
-<td>${r.min}</td>
+${r.minutes} minutes
 
-
-</tr>
-
+</div>
 
 `;
 
-
 });
 
 
@@ -500,116 +311,75 @@ h.innerHTML += `
 
 
 
-// CSV EXPORT
 
-function exportCSV(){
+function csv(){
 
 
-let csv =
-"Name,Date,Start,End,Minutes\n";
+let text="Name,Date,Minutes\n";
 
 
 records.forEach(r=>{
 
 
-csv +=
-
-`${r.name},${r.date},${r.start},${r.end},${r.min}\n`;
-
+text+=`${r.name},${r.date},${r.minutes}\n`;
 
 });
 
 
-
-let blob =
-new Blob([csv]);
+let a=document.createElement("a");
 
 
-
-let a =
-document.createElement("a");
-
-
-a.href =
-URL.createObjectURL(blob);
+a.href=URL.createObjectURL(
+new Blob([text])
+);
 
 
-a.download =
-"break-record.csv";
+a.download="break.csv";
 
 
 a.click();
 
-
-}
-
-
-
-// BACK
-
-function backHome(){
-
-
-document.querySelectorAll(".page")
-.forEach(p=>{
-
-p.classList.add("hidden");
-
-});
-
-
-employeesPage.classList.remove("hidden");
-
-
-loadEmployees();
-
 }
 
 
 
 
-// DARK MODE
+function back(){
+
+
+document.querySelectorAll("section")
+.forEach(x=>x.classList.add("hide"));
+
+
+home.classList.remove("hide");
+
+
+load();
+
+}
+
+
+
 
 function darkMode(){
 
-
 document.body.classList.toggle("dark");
 
-
-localStorage.setItem(
-
-"dark",
-
-document.body.classList.contains("dark")
-
-);
-
-
 }
 
 
+let home=document.getElementById("home");
+
+let breakPage=document.getElementById("breakPage");
+
+let history=document.getElementById("history");
+
+let employeesDiv=document.getElementById("employees");
+
+let recordsDiv=document.getElementById("records");
 
 
-// NOTIFICATION PERMISSION
+load();
 
-if(
-"Notification" in window
-){
 
 Notification.requestPermission();
-
-}
-
-
-
-// OFFLINE
-
-if(
-"serviceWorker" in navigator
-){
-
-navigator.serviceWorker.register(
-"sw.js"
-);
-
-}
