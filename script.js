@@ -1,53 +1,67 @@
 let employees =
 JSON.parse(localStorage.emp || "[]");
 
-
 let records =
 JSON.parse(localStorage.records || "[]");
 
+let activeBreaks =
+JSON.parse(localStorage.activeBreaks || "{}");
 
-let selected="";
+let selected = "";
 
-
-let startTime =
-localStorage.start || null;
-
-
-
-let active =
-localStorage.active || null;
+let timer = null;
+let notificationChecker = null;
 
 
 
-let timer;
+function saveData(){
 
+localStorage.emp =
+JSON.stringify(employees);
 
+localStorage.records =
+JSON.stringify(records);
+
+localStorage.activeBreaks =
+JSON.stringify(activeBreaks);
+
+}
 
 
 
 function load(){
 
-
-employeesDiv.innerHTML="";
-
+employeesDiv.innerHTML = "";
 
 employees.forEach(e=>{
 
+let status = "🟢 Working";
 
-let status="🟢 Working";
+let timerText = "";
 
+if(activeBreaks[e]){
 
-if(active==e)
+let seconds =
+Math.floor(
+(Date.now()-activeBreaks[e]) / 1000
+);
 
-status="🔴 On Break";
+let h =
+Math.floor(seconds/3600);
 
+let m =
+Math.floor((seconds%3600)/60);
 
-employeesDiv.innerHTML +=
+status = "🔴 On Break";
 
-`
+timerText =
+`<br><small>${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}</small>`;
+
+}
+
+employeesDiv.innerHTML += `
 
 <div class="employee"
-
 onclick="openEmp('${e}')">
 
 <b>${e}</b>
@@ -56,13 +70,13 @@ onclick="openEmp('${e}')">
 
 ${status}
 
+${timerText}
+
 </div>
 
 `;
 
-
 });
-
 
 }
 
@@ -70,45 +84,44 @@ ${status}
 
 function addEmployee(){
 
+let n =
+empInput.value.trim();
 
-let n=empInput.value.trim();
+if(!n) return;
 
-
-if(!n)return;
-
+if(employees.includes(n)){
+alert("Employee already exists");
+return;
+}
 
 employees.push(n);
 
+saveData();
 
-localStorage.emp=
-JSON.stringify(employees);
-
-
-empInput.value="";
-
+empInput.value = "";
 
 load();
-
 
 }
 
 
 
-
-
 function openEmp(e){
 
+selected = e;
 
-selected=e;
-
-
-empName.innerHTML=e;
-
+empName.innerHTML = e;
 
 home.classList.add("hide");
 
 breakPage.classList.remove("hide");
 
+clearInterval(timer);
+
+update();
+
+timer =
+setInterval(update,1000);
 
 }
 
@@ -116,59 +129,25 @@ breakPage.classList.remove("hide");
 
 function start(){
 
+if(!selected) return;
 
-if(startTime)return;
+if(activeBreaks[selected]){
 
+alert("Already on break");
 
-
-startTime=Date.now();
-
-
-active=selected;
-
-
-localStorage.start=startTime;
-
-
-localStorage.active=active;
-
-
-
-timer=setInterval(update,1000);
-
-
-notify();
-
+return;
 
 }
 
+activeBreaks[selected] = Date.now();
 
+saveData();
 
-function update(){
+update();
 
+load();
 
-let sec=
-Math.floor(
-(Date.now()-startTime)/1000
-);
-
-
-
-let h=Math.floor(sec/3600);
-
-
-let m=Math.floor(sec%3600/60);
-
-
-let s=sec%60;
-
-
-
-document.querySelector(".timer")
-.innerHTML=
-
-`${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-
+startNotificationChecker();
 
 }
 
@@ -176,120 +155,166 @@ document.querySelector(".timer")
 
 function stop(){
 
+if(!activeBreaks[selected]){
 
-let end=Date.now();
+alert("Employee is not on break");
 
+return;
 
-let min=Math.floor(
-(end-startTime)/60000
+}
+
+let startTime =
+activeBreaks[selected];
+
+let endTime =
+Date.now();
+
+let minutes =
+Math.floor(
+(endTime-startTime)/60000
 );
-
-
 
 records.unshift({
 
 name:selected,
 
-date:new Date().toLocaleDateString(),
+date:new Date(startTime)
+.toLocaleDateString(),
 
-minutes:min
+start:new Date(startTime)
+.toLocaleTimeString(),
+
+end:new Date(endTime)
+.toLocaleTimeString(),
+
+minutes:minutes
 
 });
 
+delete activeBreaks[selected];
 
+saveData();
 
-localStorage.records=
-JSON.stringify(records);
+update();
 
+load();
 
-
-localStorage.removeItem("start");
-
-localStorage.removeItem("active");
-
-
-
-startTime=null;
-
-active=null;
-
-
-clearInterval(timer);
-
-
-alert("Saved");
-
-
-back();
+alert("Break saved");
 
 }
 
 
 
+function update(){
 
-function notify(){
+if(!selected){
 
+document.querySelector(".timer")
+.innerHTML = "00:00:00";
 
-setInterval(()=>{
+return;
 
+}
 
-if(!startTime)return;
+if(!activeBreaks[selected]){
 
+document.querySelector(".timer")
+.innerHTML = "00:00:00";
 
-let min=Math.floor(
+status.innerHTML =
+"🟢 Working";
 
-(Date.now()-startTime)
-/60000
+return;
 
+}
+
+let sec =
+Math.floor(
+(Date.now()-activeBreaks[selected])
+/1000
 );
 
+let h =
+Math.floor(sec/3600);
+
+let m =
+Math.floor((sec%3600)/60);
+
+let s =
+sec%60;
+
+document.querySelector(".timer")
+.innerHTML =
+
+`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+
+status.innerHTML =
+"🔴 On Break";
+
+}
 
 
-if(min>=30 && min%10==0){
 
+function startNotificationChecker(){
+
+if(notificationChecker) return;
+
+notificationChecker =
+setInterval(()=>{
+
+Object.keys(activeBreaks)
+.forEach(emp=>{
+
+let minutes =
+Math.floor(
+(Date.now()-activeBreaks[emp])
+/60000
+);
+
+if(
+minutes >= 30 &&
+minutes % 10 === 0
+){
+
+if(
+Notification.permission === "granted"
+){
 
 new Notification(
 "Break Alert",
 {
-body:selected+
-" break "+min+
-" minutes"
+body:
+`${emp} has been on break for ${minutes} minutes`
 }
 );
 
+}
 
 }
 
+});
 
 },60000);
 
-
 }
-
 
 
 
 function historyPage(){
 
-
 home.classList.add("hide");
 
 history.classList.remove("hide");
 
-
-recordsDiv.innerHTML="";
-
+recordsDiv.innerHTML = "";
 
 records.forEach(r=>{
 
-
-recordsDiv.innerHTML+=
-
-`
+recordsDiv.innerHTML += `
 
 <div class="employee">
 
-${r.name}
+<b>${r.name}</b>
 
 <br>
 
@@ -297,7 +322,15 @@ ${r.date}
 
 <br>
 
-${r.minutes} minutes
+Start: ${r.start}
+
+<br>
+
+End: ${r.end}
+
+<br>
+
+Duration: ${r.minutes} min
 
 </div>
 
@@ -305,37 +338,32 @@ ${r.minutes} minutes
 
 });
 
-
 }
-
-
 
 
 
 function csv(){
 
-
-let text="Name,Date,Minutes\n";
-
+let text =
+"Name,Date,Start,End,Minutes\n";
 
 records.forEach(r=>{
 
-
-text+=`${r.name},${r.date},${r.minutes}\n`;
+text +=
+`${r.name},${r.date},${r.start},${r.end},${r.minutes}\n`;
 
 });
 
+let a =
+document.createElement("a");
 
-let a=document.createElement("a");
-
-
-a.href=URL.createObjectURL(
+a.href =
+URL.createObjectURL(
 new Blob([text])
 );
 
-
-a.download="break.csv";
-
+a.download =
+"break-history.csv";
 
 a.click();
 
@@ -343,21 +371,16 @@ a.click();
 
 
 
-
 function back(){
-
 
 document.querySelectorAll("section")
 .forEach(x=>x.classList.add("hide"));
 
-
 home.classList.remove("hide");
-
 
 load();
 
 }
-
 
 
 
@@ -365,21 +388,46 @@ function darkMode(){
 
 document.body.classList.toggle("dark");
 
+localStorage.dark =
+document.body.classList.contains("dark");
+
 }
 
 
-let home=document.getElementById("home");
 
-let breakPage=document.getElementById("breakPage");
+if(localStorage.dark==="true"){
 
-let history=document.getElementById("history");
+document.body.classList.add("dark");
 
-let employeesDiv=document.getElementById("employees");
+}
 
-let recordsDiv=document.getElementById("records");
+
+
+let home =
+document.getElementById("home");
+
+let breakPage =
+document.getElementById("breakPage");
+
+let history =
+document.getElementById("history");
+
+let employeesDiv =
+document.getElementById("employees");
+
+let recordsDiv =
+document.getElementById("records");
+
 
 
 load();
 
 
+
+if("Notification" in window){
+
 Notification.requestPermission();
+
+}
+
+startNotificationChecker();
