@@ -59,35 +59,7 @@ timerText =
 
 }
 
-employeesDiv.innerHTML += `
-<div class="employee"
 
-onclick="openEmp('${e}')"
-
-onmousedown="startDeleteEmployee(${index})"
-ontouchstart="startDeleteEmployee(${index})"
-
-onmouseup="cancelLongPress()"
-onmouseleave="cancelLongPress()"
-ontouchend="cancelLongPress()">
-
-`;
-
-<b>${e}</b>
-
-<br>
-
-${status}
-
-${timerText}
-
-</div>
-
-`;
-
-});
-
-}
 
 
 
