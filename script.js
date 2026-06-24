@@ -33,7 +33,7 @@ function load(){
 
 employeesDiv.innerHTML = "";
 
-employees.forEach(e=>{
+employees.forEach((e,index)=>{
 
 let status = "🟢 Working";
 
@@ -60,9 +60,18 @@ timerText =
 }
 
 employeesDiv.innerHTML += `
-
 <div class="employee"
-onclick="openEmp('${e}')">
+
+onclick="openEmp('${e}')"
+
+onmousedown="startDeleteEmployee(${index})"
+ontouchstart="startDeleteEmployee(${index})"
+
+onmouseup="cancelLongPress()"
+onmouseleave="cancelLongPress()"
+ontouchend="cancelLongPress()">
+
+`;
 
 <b>${e}</b>
 
@@ -308,11 +317,18 @@ history.classList.remove("hide");
 
 recordsDiv.innerHTML = "";
 
-records.forEach(r=>{
+records.forEach((r,index)=>{
 
 recordsDiv.innerHTML += `
 
-<div class="employee">
+<div class="employee"
+
+onmousedown="startDeleteHistory(${index})"
+ontouchstart="startDeleteHistory(${index})"
+
+onmouseup="cancelLongPress()"
+onmouseleave="cancelLongPress()"
+ontouchend="cancelLongPress()">
 
 <b>${r.name}</b>
 
