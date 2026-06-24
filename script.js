@@ -431,3 +431,52 @@ Notification.requestPermission();
 }
 
 startNotificationChecker();
+
+let pressTimer;
+
+function startDeleteEmployee(index){
+
+pressTimer = setTimeout(()=>{
+
+if(confirm(`Delete ${employees[index]} ?`)){
+
+// remove active break if exists
+delete activeBreaks[employees[index]];
+
+employees.splice(index,1);
+
+saveData();
+
+load();
+
+}
+
+},800); // 800ms long press
+
+}
+
+
+function startDeleteHistory(index){
+
+pressTimer = setTimeout(()=>{
+
+if(confirm("Delete this history record?")){
+
+records.splice(index,1);
+
+saveData();
+
+historyPage();
+
+}
+
+},800);
+
+}
+
+
+function cancelLongPress(){
+
+clearTimeout(pressTimer);
+
+}
