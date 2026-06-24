@@ -476,6 +476,10 @@ function startDeleteHistory(index){
 
 pressTimer = setTimeout(()=>{
 
+if(navigator.vibrate){
+navigator.vibrate(100);
+}
+
 if(confirm("Delete this history record?")){
 
 records.splice(index,1);
