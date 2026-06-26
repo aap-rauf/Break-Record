@@ -1,149 +1,238 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
 
 <title>Break Tracker</title>
 
-<link rel="stylesheet" href="style.css">
+<meta name="theme-color"
+content="#2563eb">
+
+<link rel="manifest"
+href="manifest.json">
+
+<link rel="stylesheet"
+href="style.css">
 
 </head>
 
-
 <body>
 
-
 <div class="app">
-
 
 <header>
 
 <h2>⏱ Break Tracker</h2>
 
-<button class="theme" onclick="darkMode()">🌙</button>
+<button id="themeBtn"
+onclick="toggleDark()">
+
+🌙
+
+</button>
 
 </header>
 
+<!-- HOME PAGE -->
 
+<section id="homePage">
 
-<section id="home">
+<div class="searchBox">
 
-
-<h3>Employees</h3>
-
-
-<input id="empInput"
+<input
+id="empInput"
 placeholder="Employee name">
 
+<button
+onclick="addEmployee()">
 
-<button onclick="addEmployee()"
-class="btn">
-+ Add Employee
+➕
+
 </button>
 
-
-
-<div id="employees"></div>
-
-
-
-<button onclick="historyPage()"
-class="btn">
-📋 History
-</button>
-
-
-</section>
-
-
-
-
-
-<section id="breakPage" class="hide">
-
-
-<h2 id="empName"></h2>
-
-
-<div class="timer" id="timer">
-00:00:00
 </div>
 
+<input
+id="searchInput"
+placeholder="Search employee..."
+onkeyup="searchEmployee()">
 
+<div id="employeeList"></div>
 
-<h3 id="status">
-🟢 Working
-</h3>
+<button
+class="mainBtn"
+onclick="openHistory()">
 
-
-<button onclick="start()"
-class="start">
-
-▶ Start Break
-
-</button>
-
-
-
-<button onclick="stop()"
-class="stop">
-
-⏹ Stop Break
+📋 History
 
 </button>
-
-
-<button onclick="back()"
-class="btn">
-
-Back
-
-</button>
-
 
 </section>
 
+<!-- EMPLOYEE PAGE -->
 
+<section
+id="employeePage"
+class="hide">
 
+<button
+class="backBtn"
+onclick="goHome()">
 
+← Back
 
+</button>
 
-<section id="history" class="hide">
+<h2 id="employeeTitle"></h2>
 
+<div
+class="timer"
+id="timer">
+
+00:00:00
+
+</div>
+
+<div
+id="breakStatus">
+
+🟢 Working
+
+</div>
+
+<div
+id="startTimeLabel">
+
+</div>
+
+<button
+
+id="breakButton"
+
+class="breakBtn"
+
+onclick="toggleBreak()">
+
+▶ START BREAK
+
+</button>
+
+</section>
+
+<!-- HISTORY -->
+
+<section
+id="historyPage"
+class="hide">
+
+<div class="historyHeader">
 
 <h2>History</h2>
 
-
-<button onclick="csv()"
-class="btn">
+<button
+onclick="exportCSV()">
 
 Export CSV
 
 </button>
 
+</div>
 
-<div id="records"></div>
+<div
+id="historyList">
 
+</div>
 
-<button onclick="back()"
-class="btn">
+<button
+class="mainBtn"
+onclick="goHome()">
 
 Back
 
 </button>
 
-
 </section>
-
-
 
 </div>
 
+<!-- Delete Employee Dialog -->
+
+<div
+id="deleteEmployeeDialog"
+class="dialog hide">
+
+<div class="dialogBox">
+
+<h3>Delete Employee?</h3>
+
+<p id="deleteEmployeeText"></p>
+
+<div class="dialogButtons">
+
+<button
+onclick="closeDialogs()">
+
+Cancel
+
+</button>
+
+<button
+class="danger"
+
+onclick="confirmDeleteEmployee()">
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Delete History Dialog -->
+
+<div
+id="deleteHistoryDialog"
+class="dialog hide">
+
+<div class="dialogBox">
+
+<h3>Delete Record?</h3>
+
+<p id="deleteHistoryText"></p>
+
+<div class="dialogButtons">
+
+<button
+onclick="closeDialogs()">
+
+Cancel
+
+</button>
+
+<button
+class="danger"
+
+onclick="confirmDeleteHistory()">
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 <script src="script.js"></script>
-
 
 </body>
 
